@@ -6,54 +6,197 @@ priority = -10
 [[patches]]
 [patches.pattern]
 target = "functions/UI_definitions.lua"
-pattern = "if card.area and card.area.config.type == 'joker' then"
-position = "before"
-payload = '''
-local merge = nil
-'''
+pattern = '''local use = nil'''
+position = "after"
+payload = '''local mass_sell = nil'''
 match_indent = true
 
 [[patches]]
 [patches.pattern]
 target = "functions/UI_definitions.lua"
-pattern = "if card.area and card.area.config.type == 'joker' then"
+pattern = '''if card.area and card.area.config.type == 'joker' then'''
 position = "after"
-payload = '''
-  merge = {n=G.UIT.C, config={align = "cr"}, nodes={
-    {n=G.UIT.C, config={ref_table = card, align = "cr",padding = 0.1, r=0.08, minw = 1.25, hover = true, shadow = true, colour = G.C.UI.BACKGROUND_INACTIVE, one_press = true, button = 'merge_joker', func = 'can_merge_joker'}, nodes={
-      {n=G.UIT.B, config = {w=0.1,h=0.6}},
-      {n=G.UIT.C, config={align = "cm"}, nodes={
-        {n=G.UIT.R, config={align = "cm", maxw = 1.25}, nodes={
-          {n=G.UIT.T, config={text = "Merge",colour = G.C.UI.TEXT_LIGHT, scale = 0.4, shadow = true}}
-        }},
-      }}
-    }},
-  }}
-'''
+payload = '''if card.ability.grex_count and card.ability.grex_count > 1 then
+    mass_sell = {n=G.UIT.C, config={ref_table = card, align = "cr",padding = 0.1, r=0.08, minw = 1.25, hover = true, shadow = true, colour = G.C.UI.BACKGROUND_INACTIVE, one_press = true, button = 'mass_sell_card', func = 'can_mass_sell_card'}, nodes={
+        {n=G.UIT.B, config = {w=0.1,h=0.6}},
+        {n=G.UIT.C, config={align = "tm"}, nodes={
+            {n=G.UIT.R, config={align = "cm", maxw = 1.25}, nodes={
+                {n=G.UIT.T, config={text = localize('b_mass_sell'),colour = G.C.UI.TEXT_LIGHT, scale = 0.4, shadow = true}}
+            }},
+            {n=G.UIT.R, config={align = "cm"}, nodes={
+                {n=G.UIT.T, config={text = localize('$'),colour = G.C.WHITE, scale = 0.4, shadow = true}},
+                {n=G.UIT.T, config={ref_table = card, ref_value = 'mass_sell_cost_label',colour = G.C.WHITE, scale = 0.55, shadow = true}}
+            }}
+        }}
+    }}
+end'''
 match_indent = true
-          
+
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = '''{n=G.UIT.C, config={ref_table = card, align = "cr",padding = 0.1, r=0.08, minw = 1.25, hover = true, shadow = true, colour = G.C.UI.BACKGROUND_INACTIVE, one_press = true, button = 'sell_card', func = 'can_sell_card'}, nodes={'''
+position = "at"
+payload = '''{n=G.UIT.C, config={ref_table = card, align = "cr",padding = 0.1, r=0.08, minw = 1.25, hover = true, shadow = true, colour = G.C.UI.BACKGROUND_INACTIVE, one_press = false, button = 'sell_card', func = 'can_sell_card'}, nodes={'''
+match_indent = true
+
+
 [[patches]]
 [patches.pattern]
 target = "functions/UI_definitions.lua"
 pattern = '''{n=G.UIT.R, config={align = 'cl'}, nodes={
-  use
+    use
 }},'''
 position = "after"
 payload = '''{n=G.UIT.R, config={align = 'cl'}, nodes={
-  merge
-}},
-'''
+    mass_sell
+}},'''
 match_indent = true
-          
-# [[patches]]
-# [patches.pattern]
-# target = '=[SMODS _ "src/utils.lua"]'
-# pattern = '''SMODS.insert_repetitions(retriggers, value, _card, 'joker_retrigger')'''
-# position = "before"
-# payload = '''print(value)
-# '''
-# match_indent = true
-# count = 2
+
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''function Card:remove()'''
+position = "at"
+payload = '''function Card:remove(force)
+    if self.ability.grex_count and self.ability.grex_count > 1 and not force then
+        self.ability.grex_count = self.ability.grex_count - 1
+        return
+    end'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''function Card:explode(dissolve_colours, explode_time_fac)'''
+position = "at"
+payload = '''function Card:explode(dissolve_colours, explode_time_fac, force)
+    if self.ability.grex_count and self.ability.grex_count > 1 then
+        self.ability.grex_count = self.ability.grex_count - 1
+        return
+    end'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''function Card:shatter()'''
+position = "at"
+payload = '''function Card:shatter(force)
+    if self.ability.grex_count and self.ability.grex_count > 1 then
+        self.ability.grex_count = self.ability.grex_count - 1
+        return
+    end'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''function Card:start_dissolve(dissolve_colours, silent, dissolve_time_fac, no_juice)'''
+position = "at"
+payload = '''function Card:start_dissolve(dissolve_colours, silent, dissolve_time_fac, no_juice, force)
+    if self.ability.grex_count and self.ability.grex_count > 1 and not force then
+        self.ability.grex_count = self.ability.grex_count - 1
+        return
+    end'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''function Card:sell_card()'''
+position = "at"
+payload = '''function Card:sell_card(force)'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''self:start_dissolve({G.C.GOLD})'''
+position = "at"
+payload = '''self:start_dissolve({G.C.GOLD}, nil, nil, nil, force)'''
+match_indent = true
+count = 3
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''func = (function() self:remove() return true end)'''
+position = "at"
+payload = '''func = (function() self:remove(force) return true end)'''
+match_indent = true
+count = 3
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''if k ~= 'focused_ui' and k ~= "front" and k ~= "back" and k ~= "soul_parts" and k ~= "center" and k ~= 'floating_sprite' and k~= "shadow" and k~= "use_button" and k ~= 'buy_button' and k ~= 'buy_and_use_button' and k~= "debuff" and k ~= 'price' and k~= 'particles' and k ~= 'h_popup' then v:draw() end'''
+position = "at"
+payload = '''if k ~= 'focused_ui' and k ~= "front" and k ~= "back" and k ~= "soul_parts" and k ~= "center" and k ~= 'floating_sprite' and k~= "shadow" and k~= "use_button" and k ~= 'buy_button' and k ~= 'buy_and_use_button' and k~= "debuff" and k ~= 'price' and k~= 'particles' and k ~= 'h_popup' and k ~= 'merge_button' then v:draw() end'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = "=[SMODS _ 'src/card_draw.lua']"
+pattern = '''focused_ui = true, front = true, back = true, soul_parts = true, center = true, floating_sprite = true, shadow = true, use_button = true, buy_button = true, buy_and_use_button = true, debuff = true, price = true, particles = true, h_popup = true'''
+position = "at"
+payload = '''focused_ui = true, front = true, back = true, soul_parts = true, center = true, floating_sprite = true, shadow = true, use_button = true, buy_button = true, buy_and_use_button = true, debuff = true, price = true, particles = true, h_popup = true, merge_button = true'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+pattern = '''if self.children.use_button and self.highlighted then self.children.use_button:draw() end'''
+position = "after"
+payload = '''if self.children.merge_button and self.highlighted then self.children.merge_button:draw() end'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+pattern = '''if self.children.use_button then self.children.use_button:remove(); self.children.use_button = nil end'''
+position = "after"
+payload = '''if self.children.merge_button then self.children.merge_button:remove(); self.children.merge_button = nil end'''
+match_indent = true
+  
+
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+pattern = '''self.children.use_button = UIBox{'''
+position = "before"
+# payload = '''
+#     self.children.merge_button = UIBox{
+#         definition = G.UIDEF.merge_button(self), 
+#         config = {
+#             align="bmi",  
+#             offset = {x=0,y=0.75},
+#             parent =self
+#         }
+#     }'''
+payload = '''
+    self.children.merge_button = UIBox{
+        definition = G.UIDEF.merge_button(self), 
+        config = {
+            align = "bmi", 
+            offset = {x=0,y=1.55},
+            parent =self
+        }
+    }'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+pattern = '''elseif self.children.use_button then'''
+position = "after"
+payload = '''
+    self.children.merge_button:remove()
+    self.children.merge_button = nil'''
+match_indent = true
+
 
 [[patches]]
 [patches.pattern]
@@ -61,14 +204,13 @@ target = '=[SMODS _ "src/utils.lua"]'
 pattern = '''if not SMODS.optional_features.retrigger_joker then return retriggers end'''
 position = "after"
 payload = '''
-print(card.ability.grex_repeats)
-if card.ability.grex_repeats and card.ability.grex_repeats >= 1 then
-  print("Im grexing it")
-  SMODS.insert_repetitions(retriggers, {repetitions=card.ability.grex_repeats, card = card}, nil, 'joker_retrigger')
+print(card.ability.grex_count-1)
+if card.ability.grex_count and card.ability.grex_count > 1 then
+    print("Im grexing it")
+    SMODS.insert_repetitions(retriggers, {repetitions=card.ability.grex_count - 1, card = card}, nil, 'joker_retrigger')
 end
 '''
 match_indent = true
-
 
 
 [[patches]]
@@ -76,8 +218,7 @@ match_indent = true
 target = 'functions/common_events.lua'
 pattern = "elseif _c.name == 'Perkeo' then info_queue[#info_queue+1] = {key = 'e_negative_consumable', set = 'Edition', config = {extra = 1}}"
 position = "after"
-payload = '''elseif card.ability.grex_repeats and card.ability.grex_repeats >= 1 then
-  info_queue[#info_queue+1] = {key = 'grex_repeats', set = 'Other',vars = {card.ability.grex_repeats}}
+payload = '''elseif card.ability.grex_count and card.ability.grex_count > 1 then
+  info_queue[#info_queue+1] = {key = (card.ability.grex_count-1) == 1 and 'grex_repeat' or 'grex_repeats', set = 'Other',vars = {card.ability.grex_count}}
 '''
 match_indent = true
-
