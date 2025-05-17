@@ -3,11 +3,81 @@ version = "1.0.0"
 dump_lua = true
 priority = -10
 
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = "if card.area and card.area.config.type == 'joker' then"
+position = "before"
+payload = '''
+local merge = nil
+'''
+match_indent = true
 
 [[patches]]
 [patches.pattern]
-target = "main.lua"
-pattern = ""
-position = "before"
-payload = ''''''
+target = "functions/UI_definitions.lua"
+pattern = "if card.area and card.area.config.type == 'joker' then"
+position = "after"
+payload = '''
+  merge = {n=G.UIT.C, config={align = "cr"}, nodes={
+    {n=G.UIT.C, config={ref_table = card, align = "cr",padding = 0.1, r=0.08, minw = 1.25, hover = true, shadow = true, colour = G.C.UI.BACKGROUND_INACTIVE, one_press = true, button = 'merge_joker', func = 'can_merge_joker'}, nodes={
+      {n=G.UIT.B, config = {w=0.1,h=0.6}},
+      {n=G.UIT.C, config={align = "cm"}, nodes={
+        {n=G.UIT.R, config={align = "cm", maxw = 1.25}, nodes={
+          {n=G.UIT.T, config={text = "Merge",colour = G.C.UI.TEXT_LIGHT, scale = 0.4, shadow = true}}
+        }},
+      }}
+    }},
+  }}
+'''
 match_indent = true
+          
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = '''{n=G.UIT.R, config={align = 'cl'}, nodes={
+  use
+}},'''
+position = "after"
+payload = '''{n=G.UIT.R, config={align = 'cl'}, nodes={
+  merge
+}},
+'''
+match_indent = true
+          
+# [[patches]]
+# [patches.pattern]
+# target = '=[SMODS _ "src/utils.lua"]'
+# pattern = '''SMODS.insert_repetitions(retriggers, value, _card, 'joker_retrigger')'''
+# position = "before"
+# payload = '''print(value)
+# '''
+# match_indent = true
+# count = 2
+
+[[patches]]
+[patches.pattern]
+target = '=[SMODS _ "src/utils.lua"]'
+pattern = '''if not SMODS.optional_features.retrigger_joker then return retriggers end'''
+position = "after"
+payload = '''
+print(card.ability.grex_repeats)
+if card.ability.grex_repeats and card.ability.grex_repeats >= 1 then
+  print("Im grexing it")
+  SMODS.insert_repetitions(retriggers, {repetitions=card.ability.grex_repeats, card = card}, nil, 'joker_retrigger')
+end
+'''
+match_indent = true
+
+
+
+[[patches]]
+[patches.pattern]
+target = 'functions/common_events.lua'
+pattern = "elseif _c.name == 'Perkeo' then info_queue[#info_queue+1] = {key = 'e_negative_consumable', set = 'Edition', config = {extra = 1}}"
+position = "after"
+payload = '''elseif card.ability.grex_repeats and card.ability.grex_repeats >= 1 then
+  info_queue[#info_queue+1] = {key = 'grex_repeats', set = 'Other',vars = {card.ability.grex_repeats}}
+'''
+match_indent = true
+

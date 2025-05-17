@@ -6,7 +6,7 @@
 	"description": "Combine jokers.",
 	"prefix": "grex",
 	"main_file": "main.lua",
-	"priority": 0,
+	"priority": -100,
 	"badge_colour": "ffffff",
 	"badge_text_colour": "ffffff",
 	"version": "1.0.0"
