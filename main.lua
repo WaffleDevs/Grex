@@ -86,31 +86,34 @@ G.FUNCS.split_joker = function(args)
 end
 
 G.UIDEF.merge_button = function (card)
-    return {n=G.UIT.ROOT, config = { colour = G.C.CLEAR}, nodes={
-        {n=G.UIT.R, config={align = "cm"}, nodes={
-            {n=G.UIT.R, config={ref_table = card, align = "cm",padding = 0.135, r=0.08, hover = true, shadow = true, colour = G.C.UI.BACKGROUND_INACTIVE, button = 'merge_joker', func = 'can_merge_joker'}, nodes={
-                {n=G.UIT.R, config={align = "cm"}, nodes={
-                    {n=G.UIT.T, config={text = "Merge",colour = G.C.UI.TEXT_LIGHT, scale = 0.3, shadow = true}}
+    if card.area and card.area.config.type == 'joker' then
+        return {n=G.UIT.ROOT, config = { colour = G.C.CLEAR}, nodes={
+            {n=G.UIT.R, config={align = "cm"}, nodes={
+                {n=G.UIT.R, config={ref_table = card, align = "cm",padding = 0.135, r=0.08, hover = true, shadow = true, colour = G.C.UI.BACKGROUND_INACTIVE, button = 'merge_joker', func = 'can_merge_joker'}, nodes={
+                    {n=G.UIT.R, config={align = "cm"}, nodes={
+                        {n=G.UIT.T, config={text = "Merge",colour = G.C.UI.TEXT_LIGHT, scale = 0.3, shadow = true}}
+                    }},
                 }},
-            }},
-            {n=G.UIT.R, config={}, nodes={
-                {n=G.UIT.B, config = {w=0.1,h=0.1}},
-            }},
-            {n=G.UIT.R, config={ref_table = card, align = "cm",padding = 0.135, r=0.08, hover = true, shadow = true, colour = G.C.UI.BACKGROUND_INACTIVE, button = 'split_joker', split_type="half_split", func = 'can_split_joker'}, nodes={
-                {n=G.UIT.R, config={align = "cm"}, nodes={
-                    {n=G.UIT.T, config={text = "Split Half",colour = G.C.UI.TEXT_LIGHT, scale = 0.25, shadow = true}}
+                {n=G.UIT.R, config={}, nodes={
+                    {n=G.UIT.B, config = {w=0.1,h=0.1}},
                 }},
-            }},
-            {n=G.UIT.R, config={}, nodes={
-                {n=G.UIT.B, config = {w=0.1,h=0.1}},
-            }},
-            {n=G.UIT.R, config={ref_table = card, align = "cm",padding = 0.135, r=0.08, hover = true, shadow = true, colour = G.C.UI.BACKGROUND_INACTIVE, button = 'split_joker', split_type="single_split", func = 'can_split_joker'}, nodes={
-                {n=G.UIT.R, config={align = "cm"}, nodes={
-                    {n=G.UIT.T, config={text = "Split 1",colour = G.C.UI.TEXT_LIGHT, scale = 0.25, shadow = true}}
+                {n=G.UIT.R, config={ref_table = card, align = "cm",padding = 0.135, r=0.08, hover = true, shadow = true, colour = G.C.UI.BACKGROUND_INACTIVE, button = 'split_joker', split_type="half_split", func = 'can_split_joker'}, nodes={
+                    {n=G.UIT.R, config={align = "cm"}, nodes={
+                        {n=G.UIT.T, config={text = "Split Half",colour = G.C.UI.TEXT_LIGHT, scale = 0.25, shadow = true}}
+                    }},
                 }},
-            }},
-        }}  
-    }}
+                {n=G.UIT.R, config={}, nodes={
+                    {n=G.UIT.B, config = {w=0.1,h=0.1}},
+                }},
+                {n=G.UIT.R, config={ref_table = card, align = "cm",padding = 0.135, r=0.08, hover = true, shadow = true, colour = G.C.UI.BACKGROUND_INACTIVE, button = 'split_joker', split_type="single_split", func = 'can_split_joker'}, nodes={
+                    {n=G.UIT.R, config={align = "cm"}, nodes={
+                        {n=G.UIT.T, config={text = "Split 1",colour = G.C.UI.TEXT_LIGHT, scale = 0.25, shadow = true}}
+                    }},
+                }},
+            }}  
+        }}
+    end
+    return {n=G.UIT.ROOT, config = { colour = G.C.CLEAR}, nodes={}}
 end
 
 
@@ -128,4 +131,5 @@ G.FUNCS.can_mass_sell_card = function(args)
         if args.config.button then args.config.button = "mass_sell_card" end
     end
 end
+
 -- watch lua Mods/Grex/main.lua

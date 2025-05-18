@@ -204,14 +204,11 @@ target = '=[SMODS _ "src/utils.lua"]'
 pattern = '''if not SMODS.optional_features.retrigger_joker then return retriggers end'''
 position = "after"
 payload = '''
-print(card.ability.grex_count-1)
 if card.ability.grex_count and card.ability.grex_count > 1 then
-    print("Im grexing it")
     SMODS.insert_repetitions(retriggers, {repetitions=card.ability.grex_count - 1, card = card}, nil, 'joker_retrigger')
 end
 '''
 match_indent = true
-
 
 [[patches]]
 [patches.pattern]

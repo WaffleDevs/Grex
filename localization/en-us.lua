@@ -24,6 +24,6 @@ return {
     misc = {
         dictionary = {
             b_mass_sell = "SELL ALL"
-        }
+        },
     }
 }
