@@ -97,7 +97,9 @@ target = "card.lua"
 pattern = '''function Card:start_dissolve(dissolve_colours, silent, dissolve_time_fac, no_juice)'''
 position = "at"
 payload = '''function Card:start_dissolve(dissolve_colours, silent, dissolve_time_fac, no_juice, force)
+    print("dissss ")
     if self.ability.grex_count and self.ability.grex_count > 1 and not force then
+    print("grex_count "..self.ability.grex_count)
         self.ability.grex_count = self.ability.grex_count - 1
         return
     end'''
@@ -204,7 +206,7 @@ target = '=[SMODS _ "src/utils.lua"]'
 pattern = '''if not SMODS.optional_features.retrigger_joker then return retriggers end'''
 position = "after"
 payload = '''
-if card.ability.grex_count and card.ability.grex_count > 1 then
+if card and card.ability.grex_count and card.ability.grex_count > 1 then
     SMODS.insert_repetitions(retriggers, {repetitions=card.ability.grex_count - 1, card = card}, nil, 'joker_retrigger')
 end
 '''
@@ -215,7 +217,7 @@ match_indent = true
 target = 'functions/common_events.lua'
 pattern = "elseif _c.name == 'Perkeo' then info_queue[#info_queue+1] = {key = 'e_negative_consumable', set = 'Edition', config = {extra = 1}}"
 position = "after"
-payload = '''elseif card.ability.grex_count and card.ability.grex_count > 1 then
+payload = '''elseif card and card.ability.grex_count and card.ability.grex_count > 1 then
   info_queue[#info_queue+1] = {key = (card.ability.grex_count-1) == 1 and 'grex_repeat' or 'grex_repeats', set = 'Other',vars = {card.ability.grex_count}}
 '''
 match_indent = true
